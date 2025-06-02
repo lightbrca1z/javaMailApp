@@ -9,7 +9,7 @@ public class DatabaseUtil {
 //    private static final String USER = "root"; // あなたのMySQLユーザー名
 //    private static final String PASSWORD = ""; // あなたのMySQLパスワード
     
-	private static final String URL = "jdbc:mysql://160.251.184.93:3306/mailsendservlet?useSSL=false&serverTimezone=UTC";
+	private static final String URL = "jdbc:mysql://160.251.206.96:3306/mailsendservlet?useSSL=false&serverTimezone=UTC";
 	private static final String USER = "root"; // または作成したMySQLユーザー
 	private static final String PASSWORD = ""; // 実際のパスワード
 

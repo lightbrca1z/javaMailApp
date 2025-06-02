@@ -19,7 +19,7 @@ public class DeleteSingleHistoryServlet extends HttpServlet {
 //    private static final String DB_USER = "root";
 //    private static final String DB_PASSWORD = "";
     
-	private static final String JDBC_URL = "jdbc:mysql://160.251.184.93:3306/mailsendservlet?useSSL=false&serverTimezone=UTC";
+	private static final String JDBC_URL = "jdbc:mysql://160.251.206.96:3306/mailsendservlet?useSSL=false&serverTimezone=UTC";
 	private static final String DB_USER = "root"; // または作成したMySQLユーザー
 	private static final String DB_PASSWORD = ""; // 実際のパスワード
     

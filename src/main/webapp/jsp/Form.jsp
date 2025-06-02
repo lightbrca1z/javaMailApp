@@ -37,7 +37,7 @@
 <!--                    String dbPassword = "";-->
                 <%
                     // データベース接続情報
-						String jdbcUrl = "jdbc:mysql://160.251.184.93:3306/mailsendservlet?useSSL=false&serverTimezone=UTC";
+						String jdbcUrl = "jdbc:mysql://160.251.206.96:3306/mailsendservlet?useSSL=false&serverTimezone=UTC";
 						String dbUser = "root"; // または作成したMySQLユーザー
 						String dbPassword = ""; // 実際のパスワード
 
