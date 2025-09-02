@@ -9,9 +9,10 @@ public class jdbcSample {
 //    private static final String JDBC_USER = "root"; // あなたのMySQLユーザー名
 //    private static final String JDBC_PASSWORD = ""; // あなたのMySQLパスワード
 	
-	private static final String JDBC_URL = "jdbc:mysql://160.251.206.96:3306/mailsendservlet?useSSL=false&serverTimezone=UTC";
-	private static final String JDBC_USER = "root"; // または作成したMySQLユーザー
-	private static final String JDBC_PASSWORD = ""; // 実際のパスワード
+	private static final String JDBC_URL = "jdbc:mysql://160.251.184.93:8006/mailsendservlet?useSSL=false&serverTimezone=UTC";
+	private static final String JDBC_USER = "root";
+	private static final String JDBC_PASSWORD = "Keeper2020";
+
 
     public static void main(String[] args) {
         try {

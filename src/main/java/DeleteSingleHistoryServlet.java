@@ -1,62 +1,69 @@
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-@WebServlet("/deleteSingleHistory")
+import com.mailsendservlet.DatabaseUtil;
+
+// web.xmlで設定されているため@WebServletアノテーションは不要
 public class DeleteSingleHistoryServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
-    // データベース接続情報
-//    private static final String JDBC_URL = "jdbc:mysql://127.0.0.1:3306/mailsendservlet?useSSL=false&serverTimezone=UTC";
-//    private static final String DB_USER = "root";
-//    private static final String DB_PASSWORD = "";
-    
-	private static final String JDBC_URL = "jdbc:mysql://160.251.206.96:3306/mailsendservlet?useSSL=false&serverTimezone=UTC";
-	private static final String DB_USER = "root"; // または作成したMySQLユーザー
-	private static final String DB_PASSWORD = ""; // 実際のパスワード
     
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        Connection conn = null;
-        PreparedStatement stmt = null;
-
-        try {
-            // パラメータからIDを取得
-            String id = request.getParameter("id");
-
-            if (id != null && !id.isEmpty()) {
-                // JDBCドライバの読み込み
-                Class.forName("com.mysql.cj.jdbc.Driver");
-                // データベース接続
-                conn = DriverManager.getConnection(JDBC_URL, DB_USER, DB_PASSWORD);
+        // パラメータからIDを取得
+        String id = request.getParameter("id");
+        
+        if (id != null && !id.isEmpty()) {
+            // try-with-resources構文を使用してリソースの自動解放を行う
+            String sql = "DELETE FROM mailsend WHERE id = ?";
+            
+            try (Connection conn = DatabaseUtil.getConnection();
+                 PreparedStatement stmt = conn.prepareStatement(sql)) {
+                
                 // DELETE クエリ実行
-                String sql = "DELETE FROM mailsend WHERE id = ?";
-                stmt = conn.prepareStatement(sql);
                 stmt.setInt(1, Integer.parseInt(id));
                 stmt.executeUpdate();
-            }
-
-            // 削除後に問い合わせフォームのページへリダイレクト
-            response.sendRedirect("./jsp/Form.jsp");
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            response.getWriter().println("エラーが発生しました。");
-        } finally {
-            try {
-                if (stmt != null) stmt.close();
-                if (conn != null) conn.close();
+                
             } catch (SQLException e) {
+                // SQLExceptionを適切にログ出力し、ユーザーにエラーメッセージを表示
                 e.printStackTrace();
+                try {
+                    response.setContentType("text/html; charset=UTF-8");
+                    response.getWriter().println("<h3>データベースエラーが発生しました。</h3>");
+                    response.getWriter().println("<p>ID: " + id + " の削除に失敗しました。</p>");
+                    response.getWriter().println("<a href='./jsp/Form.jsp'>フォームに戻る</a>");
+                } catch (IOException ioException) {
+                    throw new ServletException("エラーメッセージの出力に失敗しました", ioException);
+                }
+                return; // エラー時はリダイレクトしない
+            } catch (NumberFormatException e) {
+                // IDの数値変換エラーを適切に処理
+                e.printStackTrace();
+                try {
+                    response.setContentType("text/html; charset=UTF-8");
+                    response.getWriter().println("<h3>無効なIDが指定されました。</h3>");
+                    response.getWriter().println("<p>ID: " + id + " は無効な形式です。</p>");
+                    response.getWriter().println("<a href='./jsp/Form.jsp'>フォームに戻る</a>");
+                } catch (IOException ioException) {
+                    throw new ServletException("エラーメッセージの出力に失敗しました", ioException);
+                }
+                return; // エラー時はリダイレクトしない
             }
+        }
+        
+        // 削除後（または空のIDの場合）に問い合わせフォームのページへリダイレクト
+        try {
+            response.sendRedirect("./jsp/Form.jsp");
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new ServletException("リダイレクトに失敗しました", e);
         }
     }
 }

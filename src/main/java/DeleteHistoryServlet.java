@@ -1,55 +1,68 @@
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-@WebServlet("/deleteHistory")
+import com.mailsendservlet.DatabaseUtil;
+
+// web.xmlで設定されているため@WebServletアノテーションは不要
 public class DeleteHistoryServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
-    // データベース接続情報
-//    private static final String JDBC_URL = "jdbc:mysql://127.0.0.1:3306/mailsendservlet?useSSL=false&serverTimezone=UTC";
-//    private static final String DB_USER = "root";
-//    private static final String DB_PASSWORD = "";
-    
-	private static final String JDBC_URL = "jdbc:mysql://160.251.206.96:3306/mailsendservlet?useSSL=false&serverTimezone=UTC";
-	private static final String DB_USER = "root"; // または作成したMySQLユーザー
-	private static final String DB_PASSWORD = ""; // 実際のパスワード
 
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        Connection conn = null;
-        PreparedStatement stmt = null;
-
-        try {
-            // JDBCドライバの読み込み
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            // データベース接続
-            conn = DriverManager.getConnection(JDBC_URL, DB_USER, DB_PASSWORD);
+        // try-with-resources構文を使用してリソースの自動解放を行う
+        String sql = "DELETE FROM mailsend";
+        
+        try (Connection conn = DatabaseUtil.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
             // DELETE クエリ実行
-            String sql = "DELETE FROM mailsend";
-            stmt = conn.prepareStatement(sql);
-            stmt.executeUpdate();
-
+            int rowsAffected = stmt.executeUpdate();
+            
+            // 削除結果のログ出力
+            System.out.println("削除された行数: " + rowsAffected);
+            
             // 削除後に問い合わせフォームのページへリダイレクト
             response.sendRedirect("./jsp/Form.jsp");
-
-        } catch (Exception e) {
+            
+        } catch (SQLException e) {
+            // SQLExceptionを適切にログ出力し、エラーページに遷移
+            System.err.println("データベースエラーが発生しました: " + e.getMessage());
             e.printStackTrace();
-            response.getWriter().println("エラーが発生しました。");
-        } finally {
+            
+            // エラーメッセージを設定してエラーページに遷移
+            request.setAttribute("errorMessage", "データベースエラーが発生しました。履歴の削除に失敗しました。");
             try {
-                if (stmt != null) stmt.close();
-                if (conn != null) conn.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
+                request.getRequestDispatcher("/jsp/error.jsp").forward(request, response);
+            } catch (ServletException | IOException forwardException) {
+                // forward失敗時は直接レスポンスに書き込み
+                response.setContentType("text/html; charset=UTF-8");
+                response.getWriter().println("<h3>データベースエラーが発生しました。</h3>");
+                response.getWriter().println("<p>履歴の削除に失敗しました。管理者にお問い合わせください。</p>");
+                response.getWriter().println("<a href='./jsp/Form.jsp'>フォームに戻る</a>");
+            }
+        } catch (Exception e) {
+            // その他の予期しないエラー
+            System.err.println("予期しないエラーが発生しました: " + e.getMessage());
+            e.printStackTrace();
+            
+            // エラーメッセージを設定してエラーページに遷移
+            request.setAttribute("errorMessage", "システムエラーが発生しました。");
+            try {
+                request.getRequestDispatcher("/jsp/error.jsp").forward(request, response);
+            } catch (ServletException | IOException forwardException) {
+                // forward失敗時は直接レスポンスに書き込み
+                response.setContentType("text/html; charset=UTF-8");
+                response.getWriter().println("<h3>システムエラーが発生しました。</h3>");
+                response.getWriter().println("<p>管理者にお問い合わせください。</p>");
+                response.getWriter().println("<a href='./jsp/Form.jsp'>フォームに戻る</a>");
             }
         }
     }

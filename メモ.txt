@@ -1,0 +1,9 @@
+ContactServlet.javaの
+
+
+Dotenv dotenv = Dotenv.configure()
+.directory("C:\\pleiades\\2024-12\\workspace\\MailSendServlet") // `.env`のあるフォルダ
+.load();
+
+
+こちらを自分のディレクトリに変更する必要がある。
