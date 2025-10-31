@@ -1,0 +1,138 @@
+【Tomcat 11対応修正完了】2025年10月31日
+
+✅ javax.servlet → jakarta.servlet への移行完了
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+エラー内容
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+java.lang.ClassCastException: class ContactServlet cannot be cast to 
+class jakarta.servlet.Servlet
+
+原因: Tomcat 10以降では javax.servlet → jakarta.servlet に
+      パッケージ名が変更されたため
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+修正内容
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. ✅ ContactServlet.java
+   javax.servlet → jakarta.servlet に変更
+
+2. ✅ DeleteHistoryServlet.java
+   javax.servlet → jakarta.servlet に変更
+
+3. ✅ DeleteSingleHistoryServlet.java
+   javax.servlet → jakarta.servlet に変更
+
+4. ✅ javax.servlet-api-3.1.0.jar を削除
+   WEB-INF/lib から古いServlet APIを削除
+   （Tomcat 11が提供するjakarta.servlet APIを使用）
+
+5. ✅ .classpath の更新
+   Apache Tomcat v9.0 → Apache Tomcat v11.0 に変更
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Tomcat バージョンとServlet API対応表
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Tomcat 9.x  → Servlet 4.0 (javax.servlet)
+Tomcat 10.x → Servlet 5.0 (jakarta.servlet) ← 移行開始
+Tomcat 11.x → Servlet 6.1 (jakarta.servlet) ← 現在使用中
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+変更されたimport文
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+変更前:
+  import javax.servlet.ServletException;
+  import javax.servlet.http.HttpServlet;
+  import javax.servlet.http.HttpServletRequest;
+  import javax.servlet.http.HttpServletResponse;
+
+変更後:
+  import jakarta.servlet.ServletException;
+  import jakarta.servlet.http.HttpServlet;
+  import jakarta.servlet.http.HttpServletRequest;
+  import jakarta.servlet.http.HttpServletResponse;
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+次のステップ（重要！）
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. ✅ Eclipseでプロジェクトをクリーン
+   プロジェクト右クリック → Clean...
+   プロジェクト右クリック → Build Project
+
+2. ✅ Tomcatサーバーをクリーン
+   Serversビュー → Tomcat右クリック → Clean...
+   Serversビュー → Tomcat右クリック → Clean Tomcat Work Directory...
+
+3. ✅ Tomcatサーバーを完全再起動
+   サーバーを停止
+   ワークスペースをクリーン
+   サーバーを再起動
+
+4. ✅ ブラウザのキャッシュをクリア
+   Cmd + Shift + Delete → キャッシュをクリア
+
+5. ✅ 動作確認
+   http://localhost:8080/MailSendServlet/
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+期待される正常なログ
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+情報: サーバーの起動 [XXX] ミリ秒
+✅ JDBC Driver loaded successfully in static block
+✅ JDBC Driver verified in getConnection()
+✅ データベース接続成功: jdbc:mysql://localhost:8889/mailsendservlet
+✅ メッセージ取得完了: X件のレコードを処理しました
+
+--- ClassCastExceptionが出ないこと ---
+
+📝 ContactServlet: doPost呼び出し - action=confirm
+📝 確認画面への遷移を開始します
+✅ 確認画面への遷移が完了しました
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+もしまだエラーが出る場合
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Eclipseを完全に再起動
+   - Eclipseを終了
+   - 再度起動
+   - プロジェクトをクリーン
+   - Tomcatを再起動
+
+2. build/classes を手動削除
+   プロジェクトフォルダ/build/classes を削除
+   プロジェクトをリフレッシュ (F5)
+   プロジェクトをクリーン&ビルド
+
+3. Tomcatのワークディレクトリをクリア
+   Serversビュー → Tomcat右クリック
+   → Clean Tomcat Work Directory...
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+参考情報
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Jakarta EE 移行ガイド:
+https://jakarta.ee/specifications/platform/9/
+
+主な変更点:
+- パッケージ名: javax.* → jakarta.*
+- 名前空間: java.sun.com → jakarta.ee
+- API仕様: Java EE → Jakarta EE
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+注意: javax.mail パッケージはまだ変更していません。
+これはメール送信機能に使用されており、現在のライブラリ
+(javax.mail-1.6.2.jar) で動作します。
+
+将来的にjakarta.mail に移行する場合は、
+jakarta.mail-api と jakarta.mail-impl のライブラリを
+追加する必要があります。
+

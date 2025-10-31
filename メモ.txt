@@ -1,0 +1,47 @@
+【プロジェクト設定メモ】
+
+✅ Dotenvの設定は不要になりました
+   → config.propertiesファイルから設定を読み込むように変更済み
+
+✅ エラーハンドリングとデバッグログを追加
+   → 詳細なログでエラー原因を特定可能
+
+【実行前の確認事項】
+
+1. MySQLサーバーを起動してください
+
+2. データベースの作成:
+   - mailsendservlet.sqlを実行してデータベースとテーブルを作成
+
+3. 設定ファイルの確認:
+   - src/main/webapp/WEB-INF/config.properties
+     → メール設定（必要に応じて変更）
+   
+   - src/main/java/com/mailsendservlet/DatabaseUtil.java
+     → データベース接続設定（必要に応じて変更）
+
+4. EclipseでTomcatサーバーにデプロイして実行
+
+【システムエラーが出る場合の対処法】
+
+1. プロジェクトをクリーン&ビルド:
+   プロジェクト右クリック → Clean... → OK
+   プロジェクト右クリック → Build Project
+
+2. Tomcatをクリーン:
+   Serversビュー → Tomcat右クリック → Clean...
+   Serversビュー → Tomcat右クリック → Clean Tomcat Work Directory...
+
+3. Tomcatを再起動:
+   サーバーを停止 → 再起動
+
+4. ブラウザキャッシュをクリア:
+   Cmd + Shift + Delete → キャッシュをクリア
+   ページリロード: Cmd + Shift + R
+
+5. Eclipseのコンソールでログを確認:
+   📝 ContactServlet: doPost呼び出し
+   📝 確認画面への遷移を開始します
+   などのログが出力されているか確認
+
+詳細はREADME.mdを参照してください。
